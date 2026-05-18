@@ -1,6 +1,14 @@
-<!-- ================= PREMIUM CSS ================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Premium Pexels Gallery</title>
 
 <style>
+
+/* ================= RESET ================= */
 
 *{
   margin:0;
@@ -17,12 +25,12 @@ body{
   padding:20px;
 }
 
-/* SEARCH + TOP */
+/* ================= TOPBAR ================= */
 
 .topbar{
   display:flex;
-  gap:12px;
   flex-wrap:wrap;
+  gap:12px;
   margin-bottom:20px;
 }
 
@@ -46,15 +54,59 @@ input::placeholder{
   color:rgba(255,255,255,0.6);
 }
 
-button{
+/* ================= BUTTONS ================= */
+
+.btn{
   cursor:pointer;
+  border:none;
+  border-radius:14px;
+  padding:12px 16px;
+  font-weight:bold;
+  transition:0.25s;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
 }
 
-/* STATS */
+.btn-primary{
+  background:linear-gradient(
+    135deg,
+    #6d5dfc,
+    #8c52ff
+  );
+  color:white;
+}
+
+.btn-primary:hover{
+  transform:translateY(-3px);
+}
+
+.btn-secondary{
+  background:rgba(255,255,255,0.08);
+  color:white;
+  border:1px solid rgba(255,255,255,0.12);
+}
+
+.btn-secondary:hover{
+  transform:translateY(-3px);
+}
+
+.btn-secondary.active{
+  background:linear-gradient(
+    135deg,
+    #ff416c,
+    #ff4b2b
+  );
+}
+
+/* ================= STATS ================= */
 
 .stats-container{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns:
+  repeat(auto-fit,minmax(180px,1fr));
   gap:16px;
   margin-bottom:25px;
 }
@@ -66,12 +118,6 @@ button{
   padding:22px;
   text-align:center;
   backdrop-filter:blur(14px);
-  box-shadow:0 10px 30px rgba(0,0,0,0.25);
-  transition:0.3s;
-}
-
-.stat-box:hover{
-  transform:translateY(-5px);
 }
 
 .stat-box h2{
@@ -83,29 +129,27 @@ button{
   color:rgba(255,255,255,0.7);
 }
 
-/* GRID */
+/* ================= GRID ================= */
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:
+  repeat(auto-fit,minmax(280px,1fr));
   gap:20px;
 }
 
-/* CARD */
+/* ================= CARD ================= */
 
 .card{
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(255,255,255,0.08);
   border-radius:24px;
   overflow:hidden;
-  backdrop-filter:blur(14px);
-  transition:0.35s;
-  box-shadow:0 12px 35px rgba(0,0,0,0.25);
+  transition:0.3s;
 }
 
 .card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 20px 45px rgba(0,0,0,0.35);
+  transform:translateY(-5px);
 }
 
 .thumb{
@@ -119,12 +163,6 @@ button{
   height:240px;
   object-fit:cover;
   display:block;
-  transition:0.5s;
-}
-
-.card:hover img,
-.card:hover video{
-  transform:scale(1.05);
 }
 
 .badge{
@@ -149,137 +187,38 @@ button{
   font-weight:bold;
 }
 
-/* CONTENT */
-
 .content{
   padding:18px;
 }
 
 .content h3{
   margin-bottom:8px;
-  font-size:18px;
 }
 
 .content p{
-  color:rgba(255,255,255,0.72);
+  color:rgba(255,255,255,0.7);
   font-size:14px;
   line-height:1.5;
 }
 
-/* BUTTONS */
+/* ================= CARD ACTIONS ================= */
 
 .card-actions{
   display:flex;
-  gap:10px;
   flex-wrap:wrap;
+  gap:10px;
   margin-top:16px;
 }
 
-.btn{
-  flex:1;
-  position:relative;
-  overflow:hidden;
-  border:none;
-  border-radius:14px;
-  padding:12px 16px;
-  font-size:14px;
-  font-weight:bold;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  transition:0.25s;
-}
-
-.btn::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,0.2),
-    transparent
-  );
-  transform:translateX(-100%);
-  transition:0.6s;
-}
-
-.btn:hover::before{
-  transform:translateX(100%);
-}
-
-.btn-primary{
-  background:linear-gradient(
-    135deg,
-    #6d5dfc,
-    #8c52ff
-  );
-  color:white;
-  box-shadow:
-  0 10px 25px rgba(108,92,255,0.35);
-}
-
-.btn-primary:hover{
-  transform:translateY(-3px);
-}
-
-.btn-secondary{
-  background:rgba(255,255,255,0.08);
-  color:white;
-  border:1px solid rgba(255,255,255,0.12);
-}
-
-.btn-secondary:hover{
-  transform:translateY(-3px);
-}
-
-.btn-secondary.active{
-  background:linear-gradient(
-    135deg,
-    #ff416c,
-    #ff4b2b
-  );
-  border:none;
-}
-
-/* TOPIC BUTTONS */
-
-.topics{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:20px;
-}
-
-.topic-btn{
-  background:rgba(255,255,255,0.08);
-  color:white;
-  padding:12px 16px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.08);
-  transition:0.25s;
-}
-
-.topic-btn.active,
-.topic-btn:hover{
-  background:linear-gradient(
-    135deg,
-    #6d5dfc,
-    #8c52ff
-  );
-}
-
-/* LOADING */
+/* ================= STATES ================= */
 
 .loading,
 .error,
 .empty{
-  text-align:center;
-  padding:60px 20px;
   background:rgba(255,255,255,0.05);
+  padding:60px 20px;
   border-radius:24px;
+  text-align:center;
 }
 
 .muted{
@@ -287,25 +226,7 @@ button{
   color:rgba(255,255,255,0.65);
 }
 
-/* SCROLL */
-
-::-webkit-scrollbar{
-  width:10px;
-}
-
-::-webkit-scrollbar-track{
-  background:#111;
-}
-
-::-webkit-scrollbar-thumb{
-  background:linear-gradient(
-    #6d5dfc,
-    #8c52ff
-  );
-  border-radius:999px;
-}
-
-/* MOBILE */
+/* ================= MOBILE ================= */
 
 @media(max-width:768px){
 
@@ -313,44 +234,116 @@ button{
     flex-direction:column;
   }
 
-  .btn{
-    width:100%;
-  }
-
 }
 
 </style>
+</head>
 
-<!-- ================= PREMIUM SCRIPT ================= -->
+<body>
+
+<!-- ================= STATS ================= -->
+
+<div class="stats-container">
+
+  <div class="stat-box">
+    <h2 id="visitorCount">0</h2>
+    <p>Premium Visitors</p>
+  </div>
+
+  <div class="stat-box">
+    <h2 id="downloadCount">0</h2>
+    <p>Total Downloads</p>
+  </div>
+
+  <div class="stat-box">
+    <h2 id="favoriteCount">0</h2>
+    <p>Total Favorites</p>
+  </div>
+
+</div>
+
+<!-- ================= TOPBAR ================= -->
+
+<div class="topbar">
+
+  <input
+    id="searchInput"
+    placeholder="Search photos/videos..."
+  >
+
+  <select id="modeSelect">
+    <option value="photos">
+      Photos
+    </option>
+
+    <option value="videos">
+      Videos
+    </option>
+  </select>
+
+  <button
+    id="refreshBtn"
+    class="btn btn-primary"
+  >
+    ↻ Refresh
+  </button>
+
+</div>
+
+<!-- ================= GRID ================= -->
+
+<div id="grid" class="grid"></div>
+
+<!-- ================= SCRIPT ================= -->
 
 <script>
 
-const API_KEY = "YOUR_PEXELS_API_KEY";
+const API_KEY =
+"YOUR_PEXELS_API_KEY";
 
-const grid = document.getElementById("grid");
-const searchInput = document.getElementById("searchInput");
-const photoQuality = document.getElementById("photoQuality");
-const videoQuality = document.getElementById("videoQuality");
+const grid =
+document.getElementById("grid");
+
+const searchInput =
+document.getElementById("searchInput");
+
+const modeSelect =
+document.getElementById("modeSelect");
+
+const refreshBtn =
+document.getElementById("refreshBtn");
 
 let currentMode = "photos";
 
 const cache = new Map();
 
-/* STATS */
+/* ================= STATS ================= */
 
 function getDownloadCount(){
 
   const stored =
   localStorage.getItem("downloads");
 
-  if(stored) return parseInt(stored);
+  if(stored){
+    return parseInt(stored);
+  }
 
   const seed =
   Math.floor(Math.random()*50000)+5000;
 
-  localStorage.setItem("downloads",seed);
+  localStorage.setItem(
+    "downloads",
+    seed
+  );
 
   return seed;
+}
+
+function getFavoriteCount(){
+
+  return Object.keys(localStorage)
+  .filter(x=>x.startsWith("fav_"))
+  .length;
 }
 
 function updateStats(){
@@ -374,27 +367,21 @@ function updateStats(){
   getFavoriteCount().toLocaleString();
 }
 
-setInterval(updateStats,4000);
-
 updateStats();
 
-/* FAVORITES */
+setInterval(updateStats,4000);
+
+/* ================= FAVORITES ================= */
 
 function favKey(type,id){
   return `fav_${type}_${id}`;
 }
 
 function isFavorite(type,id){
+
   return localStorage.getItem(
     favKey(type,id)
   ) !== null;
-}
-
-function getFavoriteCount(){
-
-  return Object.keys(localStorage)
-  .filter(x=>x.startsWith("fav_"))
-  .length;
 }
 
 function toggleFavorite(item){
@@ -439,11 +426,10 @@ function updateFavoriteButtons(){
     active
     ? "♥ Favorited"
     : "♡ Favorite";
-
   });
 }
 
-/* HELPERS */
+/* ================= STATES ================= */
 
 function loadingState(text){
 
@@ -451,7 +437,7 @@ function loadingState(text){
   <div class="loading">
     <strong>${text}</strong>
     <div class="muted">
-      Fetching premium content...
+      Fetching live content...
     </div>
   </div>
   `;
@@ -477,40 +463,40 @@ function emptyState(msg){
   `;
 }
 
-/* PHOTO QUALITY */
+/* ================= FETCH ================= */
 
-function getPhotoUrl(photo){
+async function fetchWithCache(url){
 
-  return photoQuality.value === "original"
-  ? photo.src.original
-  : photo.src[photoQuality.value]
-  || photo.src.large2x
-  || photo.src.large;
+  if(cache.has(url)){
+    return cache.get(url);
+  }
+
+  const res = await fetch(url,{
+    headers:{
+      Authorization:API_KEY
+    }
+  });
+
+  if(!res.ok){
+    throw new Error();
+  }
+
+  const data =
+  await res.json();
+
+  cache.set(url,data);
+
+  return data;
 }
 
-/* VIDEO QUALITY */
-
-function getBestVideoFile(video){
-
-  const files =
-  [...(video.video_files || [])]
-  .filter(x=>x.link)
-  .sort((a,b)=>
-    (a.width||0)-(b.width||0)
-  );
-
-  if(!files.length) return null;
-
-  return files[files.length-1];
-}
-
-/* DOWNLOAD */
+/* ================= DOWNLOAD ================= */
 
 async function downloadFile(url,name){
 
   try{
 
-    const res = await fetch(url);
+    const res =
+    await fetch(url);
 
     const blob =
     await res.blob();
@@ -545,40 +531,17 @@ async function downloadFile(url,name){
   }catch(err){
 
     window.open(url);
-
   }
 }
 
-/* CACHE FETCH */
-
-async function fetchWithCache(url){
-
-  if(cache.has(url))
-  return cache.get(url);
-
-  const res = await fetch(url,{
-    headers:{
-      Authorization:API_KEY
-    }
-  });
-
-  if(!res.ok)
-  throw new Error();
-
-  const data =
-  await res.json();
-
-  cache.set(url,data);
-
-  return data;
-}
-
-/* RENDER PHOTOS */
+/* ================= RENDER PHOTOS ================= */
 
 function renderPhotos(photos){
 
   if(!photos.length){
-    emptyState("Try another keyword");
+    emptyState(
+      "Try another keyword"
+    );
     return;
   }
 
@@ -586,7 +549,8 @@ function renderPhotos(photos){
   photos.map(photo=>{
 
     const img =
-    getPhotoUrl(photo);
+    photo.src.large2x
+    || photo.src.large;
 
     const fav =
     isFavorite(
@@ -655,6 +619,7 @@ function renderPhotos(photos){
             data-fav-btn
             data-type="photo"
             data-id="${photo.id}"
+
             onclick='toggleFavorite({
               type:"photo",
               id:"${photo.id}"
@@ -678,12 +643,14 @@ function renderPhotos(photos){
   updateFavoriteButtons();
 }
 
-/* RENDER VIDEOS */
+/* ================= RENDER VIDEOS ================= */
 
 function renderVideos(videos){
 
   if(!videos.length){
-    emptyState("Try another keyword");
+    emptyState(
+      "Try another keyword"
+    );
     return;
   }
 
@@ -691,10 +658,10 @@ function renderVideos(videos){
   videos.map(video=>{
 
     const file =
-    getBestVideoFile(video);
+    video.video_files?.[0];
 
     const source =
-    file ? file.link : "";
+    file?.link || "";
 
     const fav =
     isFavorite(
@@ -765,6 +732,7 @@ function renderVideos(videos){
             data-fav-btn
             data-type="video"
             data-id="${video.id}"
+
             onclick='toggleFavorite({
               type:"video",
               id:"${video.id}"
@@ -788,7 +756,7 @@ function renderVideos(videos){
   updateFavoriteButtons();
 }
 
-/* LOAD */
+/* ================= LOAD ================= */
 
 async function loadContent(){
 
@@ -806,7 +774,9 @@ async function loadContent(){
 
     const endpoint =
     currentMode === "photos"
+
     ? `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=12`
+
     : `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=12`;
 
     const data =
@@ -814,11 +784,15 @@ async function loadContent(){
 
     if(currentMode === "photos"){
 
-      renderPhotos(data.photos || []);
+      renderPhotos(
+        data.photos || []
+      );
 
     }else{
 
-      renderVideos(data.videos || []);
+      renderVideos(
+        data.videos || []
+      );
     }
 
   }catch(err){
@@ -829,8 +803,44 @@ async function loadContent(){
   }
 }
 
-/* START */
+/* ================= EVENTS ================= */
+
+searchInput.addEventListener(
+  "keydown",
+  e=>{
+
+    if(e.key === "Enter"){
+      loadContent();
+    }
+  }
+);
+
+modeSelect.addEventListener(
+  "change",
+  ()=>{
+
+    currentMode =
+    modeSelect.value;
+
+    loadContent();
+  }
+);
+
+refreshBtn.addEventListener(
+  "click",
+  ()=>{
+
+    cache.clear();
+
+    loadContent();
+  }
+);
+
+/* ================= START ================= */
 
 loadContent();
 
 </script>
+
+</body>
+</html>
