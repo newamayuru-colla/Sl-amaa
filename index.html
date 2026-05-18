@@ -12,11 +12,14 @@
   <style>
     :root{
       --bg: #eef5ff;
-      --card: rgba(255,255,255,.78);
+      --card: rgba(255,255,255,.80);
+      --card2: rgba(255,255,255,.92);
       --text: #0f172a;
       --muted: #64748b;
       --primary: #2563eb;
       --primary2: #38bdf8;
+      --success: #16a34a;
+      --danger: #ef4444;
       --shadow: 0 18px 45px rgba(15, 23, 42, .10);
       --shadow2: 0 10px 30px rgba(15, 23, 42, .08);
       --radius: 24px;
@@ -24,7 +27,6 @@
 
     *{ box-sizing:border-box; }
     html, body { margin:0; padding:0; }
-
     body{
       font-family:'Poppins', sans-serif;
       color:var(--text);
@@ -116,7 +118,7 @@
     }
 
     .hero-card{
-      background: linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,255,255,.64));
+      background: linear-gradient(135deg, rgba(255,255,255,.88), rgba(255,255,255,.66));
       border:1px solid rgba(255,255,255,.68);
       border-radius: 32px;
       box-shadow: var(--shadow);
@@ -144,7 +146,7 @@
 
     .hero-top{
       display:grid;
-      grid-template-columns: 1.5fr .9fr;
+      grid-template-columns: 1.45fr .95fr;
       gap:20px;
       align-items:center;
     }
@@ -167,6 +169,27 @@
       color:var(--muted);
       font-size:1rem;
       max-width:58ch;
+    }
+
+    .speed-chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .speed-chips span{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.82);
+      border:1px solid rgba(15,23,42,.06);
+      box-shadow: var(--shadow2);
+      font-size:.84rem;
+      font-weight:700;
+      color: var(--text);
     }
 
     .hero-meta{
@@ -529,7 +552,6 @@
       align-items:center;
       justify-content:center;
       gap:8px;
-      flex:1 1 0;
       min-width:0;
       width:100%;
     }
@@ -640,30 +662,34 @@
       font-size:.85rem;
     }
 
-    .speed-chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:16px;
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(20px);
+      background:rgba(15,23,42,.92);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:999px;
+      box-shadow:0 16px 40px rgba(0,0,0,.24);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease, transform .25s ease;
+      z-index:100;
+      max-width:calc(100% - 24px);
+      text-align:center;
+      font-size:.92rem;
     }
 
-    .speed-chips span{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 12px;
-      border-radius:999px;
-      background: rgba(255,255,255,.8);
-      border:1px solid rgba(15,23,42,.06);
-      box-shadow: var(--shadow2);
-      font-size:.84rem;
-      font-weight:700;
-      color: var(--text);
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
     }
 
     body.dark{
       --bg: #060816;
       --card: rgba(15,23,42,.78);
+      --card2: rgba(15,23,42,.92);
       --text: #f8fafc;
       --muted: #94a3b8;
       --shadow: 0 20px 60px rgba(0,0,0,.45);
@@ -706,7 +732,6 @@
       border-color: rgba(255,255,255,.06);
     }
 
-    body.dark .mini-note,
     body.dark footer,
     body.dark .brand p{
       color: var(--muted);
@@ -874,6 +899,8 @@
     </footer>
   </main>
 
+  <div id="toast" class="toast"></div>
+
   <script>
     const API_KEY = "W2uSxyPjiN6rfcFlJPRdV0x7wAXTXJsyDSBqyyok1nFdMboDtqBUexrQ";
 
@@ -890,6 +917,7 @@
     const visitorCountEl = document.getElementById("visitorCount");
     const downloadCountEl = document.getElementById("downloadCount");
     const favoriteCountEl = document.getElementById("favoriteCount");
+    const toastEl = document.getElementById("toast");
 
     const STORAGE_KEYS = {
       theme: "amaa_theme",
@@ -899,11 +927,13 @@
       sessionSeen: "amaa_session_seen"
     };
 
-    let currentMode = "photos";
-    let currentQuery = "nature";
-    const cache = new Map();
-    let abortController = null;
-    let debounceTimer = null;
+    const state = {
+      mode: "photos",
+      query: "nature",
+      cache: new Map(),
+      controller: null,
+      debounceTimer: null
+    };
 
     function escapeHtml(str = "") {
       return String(str).replace(/[&<>"']/g, (m) => ({
@@ -913,6 +943,13 @@
         "\"": "&quot;",
         "'": "&#39;"
       }[m]));
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toastEl.classList.remove("show"), 2200);
     }
 
     function getFavorites() {
@@ -927,10 +964,18 @@
       localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(list));
     }
 
-    function incrementDownloadCount() {
-      const current = Number(localStorage.getItem(STORAGE_KEYS.downloads) || 0);
-      localStorage.setItem(STORAGE_KEYS.downloads, String(current + 1));
-      updatePremiumStats();
+    function isFavorite(type, id) {
+      return getFavorites().some(item => item.type === type && String(item.id) === String(id));
+    }
+
+    function updateStats() {
+      const visitors = Number(localStorage.getItem(STORAGE_KEYS.visitors) || 0);
+      const downloads = Number(localStorage.getItem(STORAGE_KEYS.downloads) || 0);
+      const favorites = getFavorites().length;
+
+      visitorCountEl.textContent = visitors.toLocaleString();
+      downloadCountEl.textContent = downloads.toLocaleString();
+      favoriteCountEl.textContent = favorites.toLocaleString();
     }
 
     function incrementVisitorCount() {
@@ -941,14 +986,10 @@
       }
     }
 
-    function updatePremiumStats() {
-      const visitors = Number(localStorage.getItem(STORAGE_KEYS.visitors) || 0);
-      const downloads = Number(localStorage.getItem(STORAGE_KEYS.downloads) || 0);
-      const favorites = getFavorites().length;
-
-      visitorCountEl.textContent = visitors.toLocaleString();
-      downloadCountEl.textContent = downloads.toLocaleString();
-      favoriteCountEl.textContent = favorites.toLocaleString();
+    function incrementDownloadCount() {
+      const current = Number(localStorage.getItem(STORAGE_KEYS.downloads) || 0);
+      localStorage.setItem(STORAGE_KEYS.downloads, String(current + 1));
+      updateStats();
     }
 
     function applyTheme(theme) {
@@ -957,13 +998,8 @@
       localStorage.setItem(STORAGE_KEYS.theme, theme);
     }
 
-    function setActiveTopic(btn) {
-      topicButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-    }
-
     function setMode(mode) {
-      currentMode = mode;
+      state.mode = mode;
       photosTab.classList.toggle("active", mode === "photos");
       videosTab.classList.toggle("active", mode === "videos");
       photoQuality.style.display = mode === "photos" ? "block" : "none";
@@ -973,17 +1009,8 @@
     function loadingState(text = "Loading...") {
       grid.innerHTML = `
         <div class="loading">
-          <strong>${text}</strong>
+          <strong>${escapeHtml(text)}</strong>
           <div class="muted">Fetching live results from Pexels.</div>
-        </div>
-      `;
-    }
-
-    function errorState(message) {
-      grid.innerHTML = `
-        <div class="error">
-          <strong>Something went wrong</strong>
-          <div class="muted">${escapeHtml(message)}</div>
         </div>
       `;
     }
@@ -997,10 +1024,18 @@
       `;
     }
 
+    function errorState(message) {
+      grid.innerHTML = `
+        <div class="error">
+          <strong>Something went wrong</strong>
+          <div class="muted">${escapeHtml(message)}</div>
+        </div>
+      `;
+    }
+
     function getPhotoUrl(photo) {
-      return photoQuality.value === "original"
-        ? photo.src.original
-        : photo.src[photoQuality.value] || photo.src.large2x || photo.src.large;
+      if (photoQuality.value === "original") return photo.src.original;
+      return photo.src[photoQuality.value] || photo.src.large2x || photo.src.large;
     }
 
     function getBestVideoFile(video) {
@@ -1013,7 +1048,6 @@
       const findClosest = (targetWidth) => {
         let best = files[0];
         let bestDiff = Math.abs((best.width || 0) - targetWidth);
-
         for (const file of files) {
           const diff = Math.abs((file.width || 0) - targetWidth);
           if (diff < bestDiff) {
@@ -1031,10 +1065,6 @@
       return files[files.length - 1];
     }
 
-    function isFavorite(type, id) {
-      return getFavorites().some(item => item.type === type && String(item.id) === String(id));
-    }
-
     function toggleFavorite(item, buttonEl) {
       const favorites = getFavorites();
       const index = favorites.findIndex(x => x.type === item.type && String(x.id) === String(item.id));
@@ -1049,12 +1079,14 @@
       }
 
       saveFavorites(favorites);
-      updatePremiumStats();
+      updateStats();
 
       if (buttonEl) {
         buttonEl.classList.toggle("active", active);
         buttonEl.innerHTML = active ? "♥ Saved" : "♡ Favorite";
       }
+
+      showToast(active ? "Added to favorites" : "Removed from favorites");
     }
 
     async function downloadFile(url, filename) {
@@ -1076,6 +1108,7 @@
         a.remove();
 
         setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
+        showToast("Download started");
       } catch (error) {
         const a = document.createElement("a");
         a.href = url;
@@ -1085,24 +1118,25 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
+        showToast("Opened file in a new tab");
       }
     }
 
     async function fetchWithCache(url) {
-      if (cache.has(url)) return cache.get(url);
+      if (state.cache.has(url)) return state.cache.get(url);
 
-      if (abortController) abortController.abort();
-      abortController = new AbortController();
+      if (state.controller) state.controller.abort();
+      state.controller = new AbortController();
 
       const res = await fetch(url, {
         headers: { Authorization: API_KEY },
-        signal: abortController.signal
+        signal: state.controller.signal
       });
 
       if (!res.ok) throw new Error("Request failed");
 
       const data = await res.json();
-      cache.set(url, data);
+      state.cache.set(url, data);
       return data;
     }
 
@@ -1112,18 +1146,21 @@
         return;
       }
 
+      const favoriteSet = new Set(getFavorites().filter(x => x.type === "photo").map(x => String(x.id)));
+
       grid.innerHTML = photos.map(photo => {
         const imgUrl = getPhotoUrl(photo);
         const photographer = escapeHtml(photo.photographer || "Unknown creator");
         const alt = escapeHtml(photo.alt || "Pexels photo");
-        const active = isFavorite("photo", photo.id);
+        const active = favoriteSet.has(String(photo.id));
+        const qualityLabel = escapeHtml(photoQuality.options[photoQuality.selectedIndex].text.replace("Photo Quality: ", ""));
 
         return `
           <article class="card">
             <div class="thumb">
               <img src="${imgUrl}" alt="${alt}" loading="lazy">
               <div class="badge">Photo</div>
-              <div class="quality">${escapeHtml(photoQuality.options[photoQuality.selectedIndex].text.replace("Photo Quality: ", ""))}</div>
+              <div class="quality">${qualityLabel}</div>
 
               <div class="card-top">
                 <button class="heart-btn ${active ? "active" : ""}"
@@ -1141,7 +1178,6 @@
             <div class="content">
               <h3>${photographer}</h3>
               <p>${alt || "High quality stock photo."}</p>
-
               <div class="card-actions">
                 <a class="btn btn-primary" href="${imgUrl}" target="_blank" rel="noopener">Open</a>
                 <button class="btn btn-secondary"
@@ -1163,12 +1199,14 @@
         return;
       }
 
+      const favoriteSet = new Set(getFavorites().filter(x => x.type === "video").map(x => String(x.id)));
+
       grid.innerHTML = videos.map(video => {
         const file = getBestVideoFile(video);
         const source = file ? file.link : "";
         const photographer = escapeHtml(video.user?.name || "Unknown creator");
         const qualityLabel = file ? `${file.width || "?"}px` : "Best";
-        const active = isFavorite("video", video.id);
+        const active = favoriteSet.has(String(video.id));
 
         return `
           <article class="card">
@@ -1194,8 +1232,7 @@
 
             <div class="content">
               <h3>${photographer}</h3>
-              <p>${video.url ? "Live preview available. Download the selected quality." : "High quality stock video."}</p>
-
+              <p>Live preview available. Download the selected quality.</p>
               <div class="card-actions">
                 <a class="btn btn-primary" href="${source}" target="_blank" rel="noopener">Open</a>
                 <button class="btn btn-secondary"
@@ -1212,19 +1249,19 @@
     }
 
     async function loadContent() {
-      const query = (searchInput.value || currentQuery || "nature").trim();
-      currentQuery = query;
+      const query = (searchInput.value || state.query || "nature").trim();
+      state.query = query;
 
-      loadingState(currentMode === "photos" ? "Loading Photos..." : "Loading Videos...");
+      loadingState(state.mode === "photos" ? "Loading Photos..." : "Loading Videos...");
 
       try {
-        const endpoint = currentMode === "photos"
+        const endpoint = state.mode === "photos"
           ? `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=12`
           : `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=12`;
 
         const data = await fetchWithCache(endpoint);
 
-        if (currentMode === "photos") renderPhotos(data.photos || []);
+        if (state.mode === "photos") renderPhotos(data.photos || []);
         else renderVideos(data.videos || []);
       } catch (err) {
         if (err.name === "AbortError") return;
@@ -1233,8 +1270,13 @@
     }
 
     function debounceLoad() {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(loadContent, 300);
+      clearTimeout(state.debounceTimer);
+      state.debounceTimer = setTimeout(loadContent, 250);
+    }
+
+    function clearCacheAndReload() {
+      state.cache.clear();
+      loadContent();
     }
 
     grid.addEventListener("click", async (e) => {
@@ -1246,14 +1288,7 @@
         const creator = favBtn.dataset.creator || "";
         const url = decodeURIComponent(favBtn.dataset.url || "");
 
-        toggleFavorite({
-          type,
-          id,
-          title,
-          creator,
-          url
-        }, favBtn);
-
+        toggleFavorite({ type, id, title, creator, url }, favBtn);
         return;
       }
 
@@ -1276,10 +1311,9 @@
     });
 
     refreshBtn.addEventListener("click", async () => {
-      cache.clear();
       refreshBtn.disabled = true;
       refreshBtn.innerHTML = "⏳ Refreshing...";
-      await loadContent();
+      clearCacheAndReload();
       setTimeout(() => {
         refreshBtn.disabled = false;
         refreshBtn.innerHTML = "↻ Refresh";
@@ -1288,9 +1322,10 @@
 
     topicButtons.forEach(btn => {
       btn.addEventListener("click", () => {
-        setActiveTopic(btn);
-        searchInput.value = btn.dataset.topic;
-        currentQuery = btn.dataset.topic;
+        topicButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.query = btn.dataset.topic;
+        searchInput.value = state.query;
         loadContent();
       });
     });
@@ -1301,11 +1336,11 @@
     });
 
     photoQuality.addEventListener("change", () => {
-      if (currentMode === "photos") loadContent();
+      if (state.mode === "photos") loadContent();
     });
 
     videoQuality.addEventListener("change", () => {
-      if (currentMode === "videos") loadContent();
+      if (state.mode === "videos") loadContent();
     });
 
     themeBtn.addEventListener("click", () => {
@@ -1313,13 +1348,14 @@
       applyTheme(nextTheme);
     });
 
-    // Init
-    incrementVisitorCount();
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "dark";
-    applyTheme(savedTheme);
-    updatePremiumStats();
-    setMode("photos");
-    loadContent();
+    (function init(){
+      incrementVisitorCount();
+      const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "dark";
+      applyTheme(savedTheme);
+      updateStats();
+      setMode("photos");
+      loadContent();
+    })();
   </script>
 </body>
 </html>
